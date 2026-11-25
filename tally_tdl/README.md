@@ -7,3 +7,5 @@
 | `LSToolContext.tdl` | Shows the active company to the tool | Under test |
 
 **Load only one `DB_Mini` file at a time.** Both define the same collections.
+
+Optional and cancelled vouchers are both excluded (rule corrected November 2026; test in Tally before release).

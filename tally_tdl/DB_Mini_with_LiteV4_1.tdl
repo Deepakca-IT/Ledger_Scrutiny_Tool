@@ -9,7 +9,7 @@
 	Filter		: onlyaccvchs
 
 [System: Formula]
-	notopt		: $isoptional = "No" or $IsCancelled = "No"
+	notopt		: NOT $IsOptional AND NOT $IsCancelled
 	onlyaccvchs	: $$IsAccountingVch:$vouchertypename
 
 [Collection:DB_Mini]

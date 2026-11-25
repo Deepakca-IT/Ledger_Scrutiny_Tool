@@ -19,7 +19,7 @@ python -m streamlit run streamlit_app.py
 - Never add client data, exports or reports to this repository or its issues.
 
 ## Known issues
-- **TDL files:** the two `DB_Mini` versions are still to be tested. The optional/cancelled voucher filter needs review.
+- **TDL files:** the two `DB_Mini` versions are still to be tested. The corrected optional/cancelled voucher rule still needs testing in Tally.
 - **Large companies:** Ledger Scrutiny reads only the first transaction file (about 10.48 lakh rows).
 
 ## Licence
