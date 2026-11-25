@@ -38,6 +38,7 @@ import os
 import json
 import pandas as pd
 import paths
+from master_columns import unify_gstin
 
 # Tally base groups (lower-cased) that make up "expenditure".
 _REVENUE_GROUPS = {"purchase accounts", "direct expenses", "indirect expenses"}
@@ -149,6 +150,11 @@ def _load_txn(company, fy):
         return pd.DataFrame()
     t = pd.concat(frames, ignore_index=True)
     t.columns = [c.strip() for c in t.columns]
+    # pandas 3 keeps blanks as float NaN even after astype(str), which breaks the
+    # keyword searches below; a blank ledger name is simply empty text.
+    if "$Particulars" in t.columns:
+        t["$Particulars"] = t["$Particulars"].astype("object").where(
+            t["$Particulars"].notna(), "")
     return t
 
 def _master_gstin_map(company, fy):
@@ -158,6 +164,7 @@ def _master_gstin_map(company, fy):
     try:
         m = pd.read_csv(p)
         m.columns = [c.strip() for c in m.columns]
+        m = unify_gstin(m)
         if "$Name" not in m.columns or "$PartyGSTIN1" not in m.columns:
             return {}
         return {str(n).strip(): str(g).strip()

@@ -33,6 +33,7 @@ import json
 import pandas as pd
 from pathlib import Path
 import paths
+from master_columns import unify_gstin
 
 
 CREDITOR_GROUP = "sundry creditors"
@@ -222,6 +223,7 @@ def creditors_with_credit_balance(company, fy):
         return pd.DataFrame(columns=cols)
     m = pd.read_csv(p)
     m.columns = [c.strip() for c in m.columns]
+    m = unify_gstin(m)
     m["$_PrimaryGroup"] = m["$_PrimaryGroup"].astype(str).str.strip().str.lower()
     m["$OpeningBalance"] = pd.to_numeric(m["$OpeningBalance"], errors="coerce").fillna(0)
     m["$ClosingBalance"] = pd.to_numeric(m["$ClosingBalance"], errors="coerce").fillna(0)

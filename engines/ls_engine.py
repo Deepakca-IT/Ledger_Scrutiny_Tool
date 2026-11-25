@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 from pathlib import Path
+from master_columns import unify_gstin
 
 
 SCRUTINY_REMARKS = {
@@ -164,7 +165,7 @@ class LSEngine:
     def load_inputs(self):
         if not self.conso_masterdata_path.exists():
             raise FileNotFoundError(f"Missing file: {self.conso_masterdata_path}")
-        self.master_df = pd.read_csv(self.conso_masterdata_path)
+        self.master_df = unify_gstin(pd.read_csv(self.conso_masterdata_path))
         if self.conso_ledgerview_path and self.conso_ledgerview_path.exists():
             self.ledgerview_df = pd.read_csv(self.conso_ledgerview_path)
         else:

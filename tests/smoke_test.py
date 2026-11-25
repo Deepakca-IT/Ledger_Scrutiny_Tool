@@ -22,11 +22,11 @@ paths.ensure_year(CO, FY)
 import fs_engine, streamlit
 assert str(TMP) in str(fs_engine.BASE_DATA_DIR)
 PAN = "AAAAA0000A"
-# Extraction writes $_PartyGSTIN1; override only to test the older layout.
+# Extraction writes $_PartyGSTIN1; set LSTOOL_TEST_GSTIN_COL=$PartyGSTIN1 for older files.
 GSTIN_COL = os.environ.get("LSTOOL_TEST_GSTIN_COL", "$_PartyGSTIN1")
 pd.DataFrame([
     # name, primary group, parent, opening, closing, prev, gstin, pan, nature, gp
-    ["Supplier One", "Sundry Creditors", "Sundry Creditors", 0, 59000, 0, "", PAN, "BS", 0],
+    ["Supplier One", "Sundry Creditors", "Sundry Creditors", 0, 59000, 0, "33AAAAA0000A1Z5", PAN, "BS", 0],
     ["Supplier Debit", "Sundry Creditors", "Sundry Creditors", 0, -5000, 0, "", "", "BS", 0],
     ["Old Deposit", "Deposits (Asset)", "Deposits (Asset)", -1000, -1000, -1000, "", "", "BS", 0],
     ["Office Rent", "Indirect Expenses", "Indirect Expenses", 0, -50000, 0, "", "", "PL", 0],
@@ -43,6 +43,7 @@ pd.DataFrame([
     v("1", "2025-04-05", "Journal", "Office Rent", -50000, "Indirect Expenses", "Supplier One"),
     v("1", "2025-04-05", "Journal", "Supplier One", 50000, "Sundry Creditors", "Supplier One"),
     v("2", "2025-05-05", "Payment", "Supplier One", -15000, "Sundry Creditors", "Supplier One"),
+    ["3", "", "3", "2025-06-01", "Payment", "Payment", None, None, None, None, None, None, None, None, ""],
     v("2", "2025-05-05", "Payment", "Cash", 15000, "Cash-in-hand", "Supplier One"),
 ], columns=cols).to_csv(paths.extracted_dir(CO, FY) / "HO_Transactions.csv", index=False)
 
@@ -55,6 +56,17 @@ assert rep.exists()
 sheets = pd.read_excel(rep, sheet_name=None, header=None)
 same = sheets["Same_Opening_Closing"].astype(str)
 assert same.apply(lambda c: c.str.contains("Old Deposit")).any().any()
+nogst = sheets["Suppliers_No_GST"].astype(str)
+has = lambda n: bool(nogst.apply(lambda c: c.str.contains(n)).any().any())
+assert has("Supplier Debit") and not has("Supplier One")
+import clause44_engine, msme_engine
+c44 = clause44_engine.compute(CO, FY)
+assert c44["summary"]["not_registered"] == 0 and c44["summary"]["total"] == 50000
+cr = msme_engine.creditors_with_credit_balance(CO, FY)
+assert cr.loc[cr["Party"] == "Supplier One", "GSTIN"].iloc[0] == "33AAAAA0000A1Z5"
+from master_columns import unify_gstin
+mix = unify_gstin(pd.DataFrame({"$PartyGSTIN1": ["OLD", "OLD2"], "$_PartyGSTIN1": ["NEW", None]}))
+assert list(mix["$PartyGSTIN1"]) == ["NEW", "OLD2"] and "$_PartyGSTIN1" not in mix
 print("report sheets:", len(sheets))
 
 from streamlit.testing.v1 import AppTest
