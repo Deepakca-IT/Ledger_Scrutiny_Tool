@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*.pyd
+build/
+python/
+installer_output/
+update_staging/
+*.zip
+*.log
+# Per-machine settings and developer flag
+data_location.json
+dev_mode.txt
+# User/client data: never commit
+data/
+backups/
+logs/
+temp_analysis/
+*.csv
+*.xls*
+*.doc*
+.env*
+.streamlit/secrets.toml

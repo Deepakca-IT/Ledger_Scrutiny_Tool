@@ -1,0 +1,44 @@
+;; jay shriram
+
+[Collection: srcodbcsale]
+	Type		: vouchers ;: vouchertype
+	Belongs To	: Yes
+	Fetch		: MasterID, IsOptional, IsCancelled, IsDeleted, Date, VoucherTypeName, Parent, +
+				  VoucherNumber, PartyLedgerName, Amount, Narration
+	Filter		: notopt
+	Filter		: onlyaccvchs
+
+[System: Formula]
+	notopt		: $isoptional = "No" or $IsCancelled = "No"
+	onlyaccvchs	: $$IsAccountingVch:$vouchertypename
+
+[Collection:DB_Mini]
+	Source Collection	: srcodbcsale
+	Walk				: AllLedgerEntries
+	Compute : VoucherID         : $().masterid
+	Compute	: VoucherNumber		: $().vouchernumber
+	Compute	: Date				: $date
+	Compute	: VoucherTypeName	: $().vouchertypename
+	Compute	: VchTypeParent		: $parent:VoucherType:$().vouchertypename
+	Compute	: Particulars		: if $ledgername = $().partyledgername then $().partyledgername else $ledgername
+	Compute	: Amount			: $amount
+	Compute	: Led_Parent		: $parent:Ledger:$ledgername
+	Compute	: Led_Group	        : if $parent:Group:$parent:Ledger:$ledgername = " Primary " then $parent:Ledger:$ledgername else $parent:Group:$parent:Ledger:$ledgername
+	Compute	: Party_LedName		: $().partyledgername
+	Compute	: Led_GSTIN			: $partygstin:Ledger:$().partyledgername
+	Compute	: Led_PAN			: $incometaxnumber:Ledger:$().partyledgername
+	Compute : Led_BaseGroup     : $_PrimaryGroup:Ledger:$ledgername
+	Is ODBC Table				: Yes
+
+[Collection: DB_Lite]
+	Source Collection	: DB_Mini
+	By					: Particulars		: $Particulars
+	By					: Party_LedName		: $Party_LedName
+	By					: Led_GSTIN			: $Led_GSTIN
+	By					: Led_PAN			: $Led_PAN
+	By					: VchTypeParent		: $VchTypeParent
+	Aggr Compute		: Amount			: Sum : $Amount
+	Compute				: Led_Parent		: $Led_Parent
+	Compute				: Led_Group			: $Led_Group
+	Compute             : Led_BaseGroup : $Led_BaseGroup
+	Is ODBC Table		: Yes
