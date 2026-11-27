@@ -71,6 +71,45 @@ def _app_version():
         return "—"
 
 
+# ── Updates from GitHub Releases (installed copies only) ──────────────────────
+# Once a day: if a newer release exists, download and verify it into
+# update_staging/; run_app.bat installs it at the next launch. The development
+# copy (a git checkout) never updates itself.
+def _apply_update_result(res):
+    status = res.get("status")
+    if status == "update_available":
+        res = updater.stage_update(res)
+        status = res.get("status")
+    if status == "staged":
+        st.session_state["update_staged"] = res["latest"]
+    elif status == "installer_required":
+        st.session_state["update_installer"] = res["latest"]
+    return res
+
+
+try:
+    import updater
+except Exception:          # never let the updater stop the app
+    updater = None
+
+if updater and "update_checked" not in st.session_state:
+    st.session_state["update_checked"] = True
+    try:
+        if updater.staged_version():
+            st.session_state["update_staged"] = updater.staged_version()
+        else:
+            _apply_update_result(updater.check_for_update())
+    except Exception:
+        pass
+
+if st.session_state.get("update_staged"):
+    st.success(f"Update v{st.session_state['update_staged']} is ready. "
+               "It installs the next time you close and reopen the app.")
+elif st.session_state.get("update_installer"):
+    st.warning(f"Version {st.session_state['update_installer']} needs the full installer. "
+               f"Download LS_Tool_Setup.exe from {updater.RELEASES_PAGE} and run it.")
+
+
 def indian_format(num):
     """Format number in Indian currency format."""
     num = float(num)
@@ -900,6 +939,17 @@ def render_sidebar():
                      help="Rebuilds cached reports. Your saved data is untouched."):
             st.cache_data.clear()
             st.toast("Cache cleared — reports will rebuild.", icon="🧹")
+
+        if updater and not updater.dev_mode() and st.button(
+                "Check for updates", key="btn_check_update", width="stretch"):
+            with st.spinner("Checking GitHub..."):
+                _res = _apply_update_result(updater.check_for_update(force=True))
+            if _res.get("status") in ("staged", "installer_required"):
+                st.rerun()
+            elif _res.get("status") == "up_to_date":
+                st.toast(f"You have the latest version, v{_app_version()}.", icon="✅")
+            else:
+                st.toast(_res.get("message", "Could not check for updates."), icon="⚠️")
 
     with navc:
         page = _render_nav(is_dev)

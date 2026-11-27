@@ -1,3 +1,4 @@
+1.1.0 - Open-source edition: no licence check; token-free updates from GitHub Releases; reads the new GSTIN column (Ledger Scrutiny, Clause 44, MSME); Clause 44 no longer crashes on a blank ledger name; DB_Mini TDL excludes optional and cancelled vouchers; installer includes every module and the TDL
 1.0.9 - Branch column in scrutiny reports 12/15/19/20/25/26; PAN Override Excel one row per party sorted by amount (TDS-deducted first); invoice counts no longer rupee-formatted; Minimise-all button in Scrutiny; Viewer renamed TDS Compliance Reports; TDS Rules layout reorder; TDS books/purchase amounts shown positive
 1.0.8 - Branch-wise OB check now works with even one PY branch extract; branch-name matching is case-insensitive; clearer coverage info
 1.0.7 - Opening Balance check runs branch-wise for group concerns (catches offsetting errors); PY consolidation optional

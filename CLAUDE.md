@@ -107,9 +107,14 @@ Clause 44) happens **within the selected year**.
   `{user,host,ts}`; `streamlit_app` refreshes it (throttled 60s) on the active company after
   `render_topbar` and shows a yellow warning if another PC holds a FRESH lock. Locks older than
   `paths.LOCK_STALE_SECONDS` (180s) are ignored (crash-safe); same user+host never self-warns.
-- **Open-source edition (2026-11):** no licence check, no GitHub token, no compiled modules and no
-  updater yet (a token-free GitHub Releases updater is planned). `dev_mode.txt` (git-ignored) only
-  shows in-development features.
+- **Open-source edition (2026-11):** no licence check, no token, no compiled modules. `dev_mode.txt`
+  (git-ignored) only shows in-development features.
+- **Updates (`updater.py`):** once a day the app reads the latest public GitHub release, downloads
+  `LS_Tool_update_<ver>.zip`, checks its `.sha256`, refuses any file outside `updater.ALLOWED` (never
+  launchers or Python), and stages it in `update_staging/` + `update_ready.txt`. `run.bat`/`run_app.bat`
+  copy it in at the next launch. If `manifest.json`'s requirements hash differs from the installed
+  `requirements.txt`, the app asks for the full installer instead. A git checkout (`.git` present)
+  never updates itself. Tests: `tests\updater_test.py` (local fake GitHub).
 - **`migrate.py`** — idempotent flat→nested migration, run once per session at startup
   (`migrate_all()`). Infers the scrutiny year from consolidated transaction dates; distributes
   the year-suffixed NCE/MSME files by their own year; moves `entity.json` to root. **Never
@@ -533,8 +538,16 @@ back (prefer a logfile/traceback over screenshots) for interactive + Tally-conne
 ## Packaging / shipping
 
 - All code ships as plain source; never compile and never commit secrets.
-- `installer.iss` includes every module by wildcard. Embedded Python goes in `python/` (git-ignored).
-- Releasing to users always needs the maintainer's explicit "release it".
+- `installer.iss` includes every module by wildcard and reads the version from `version.txt`.
+  Embedded Python goes in `python/` (git-ignored). Upgrading a pre-open-source install renames
+  `Documents\LSTool` to `LSTool_old_<date>` (never deletes) and drops `data_location.json`.
+- **Test the installer only as a separately named build:** `ISCC /DTestBuild installer.iss` gives
+  `LS Tool TEST`, whose data reset touches only `{app}\TestDocuments`. Install it with
+  `/DIR=<test folder> /NOICONS /TASKS=""`. A normal build would replace the maintainer's own install.
+- **Release steps (only after the maintainer says "release it"):** bump `version.txt` + `changelog.txt`,
+  run both tests, commit and push, run `python\python.exe tools\make_release.py` (needs a clean tree),
+  build `ISCC installer.iss` (only when launchers, Python or packages changed, or for a new PC), then
+  create GitHub release `v<version>` with the update ZIP, its `.sha256` and the installer.
 
 ---
 

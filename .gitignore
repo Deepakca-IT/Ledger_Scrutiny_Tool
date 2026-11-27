@@ -20,3 +20,7 @@ temp_analysis/
 *.doc*
 .env*
 .streamlit/secrets.toml
+# Updater state and release builds
+update_state.json
+update_ready.txt
+dist/
