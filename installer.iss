@@ -79,7 +79,9 @@ Source: "README.md";        DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE";          DestDir: "{app}"; Flags: ignoreversion
 
 ; ── Embedded Python (includes reportlab, pandas, streamlit, etc.) ──────────
-Source: "python\*"; DestDir: "{app}\python"; Excludes: "__pycache__"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Development-only parts are left out: test suites, C headers and build libraries,
+; pip and its launchers, and Jupyter add-ons. The app never installs packages itself.
+Source: "python\*"; DestDir: "{app}\python"; Excludes: "__pycache__,tests,\include,\libs,\Scripts,\share,\etc,\get-pip.py,\Lib\site-packages\pip,\Lib\site-packages\pip-*.dist-info"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 ; Shortcuts run the hidden VBS launcher (via wscript) so only the app window

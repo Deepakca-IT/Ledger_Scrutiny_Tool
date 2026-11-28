@@ -127,7 +127,7 @@ Clause 44) happens **within the selected year**.
 Never name client companies in this repository. Test with made-up data only.
 
 ### Financials (NCE) feature — in progress (big feature)
-"🧾 Financials (NCE)" tab (tab7) prepares ICAI **Non-Corporate-Entity** statements
+"🧾 Financials (NCE)" page (`nce`) prepares ICAI **Non-Corporate-Entity** statements
 (Proprietor / Partnership). We build our own layouts.
 
 **Core:** each TB ledger gets a 3-level grouping **Face → Note → Sub-Note**; BS/P&L/Notes aggregate
@@ -173,7 +173,7 @@ header (no amount) and the values sit on the indented sub-note rows; otherwise t
   work in progress and finished goods", FAR faces "Property Plant and Equipment"/"Intangible assets".
 - `fs_ui.py` — **the whole NCE division UI** (`render_nce(company_name)`: all fragments — Master
   Data, Grouping, FAR, Check, Disclosures, Statements viewer). Split out of `streamlit_app.py`
-  (which now only does `if _dev: with tab7: fs_ui.render_nce(company_name)`) so the main file stays
+  (which only calls `fs_ui.render_nce` on the `nce` page when `_dev`) so the main file stays
   small and this logic stays separate.
 - `fs_policies.py` — prefilled **Disclosures** defaults: `DEFAULT_ENTITY_INFO` (Note 1) and
   `DEFAULT_POLICIES` (Note 2 = ordered `(key, head, default_disclose, text)` of standard ICAI
@@ -557,5 +557,4 @@ back (prefer a logfile/traceback over screenshots) for interactive + Tally-conne
 - Keep engines independent of the UI; `streamlit_app.py` calls engines, not vice-versa.
 - One logical change = one commit, with a clear "what + why" message.
 - Only commit/push when the user asks.
-- README's "Folder Structure" section is **stale** (mentions `dashboard.py`,
-  `exporters/`, `requirements.txt` that don't exist) — trust this file instead.
+- README is for users; this file is the developer guide. Keep both current.
