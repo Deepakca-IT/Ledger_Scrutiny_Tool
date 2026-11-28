@@ -7,7 +7,7 @@ Data stays on your computer or your own shared folder.
 ## Install (Windows)
 1. Download `LS_Tool_Setup.exe` from the latest [release](https://github.com/Deepakca-IT/Ledger_Scrutiny_Tool/releases/latest).
 2. Run it. Windows may warn about an unrecognised app: choose **More info, Run anyway**.
-3. In Tally, load `tally_tdl\DB_Mini_with_LiteV4_1.tdl` from the install folder and restart Tally.
+3. In Tally, load `tally_tdl\LS_V4.tdl` from the install folder and restart Tally.
 
 Upgrading from an older licensed version starts with empty data. The old `Documents\LSTool` folder is renamed, never deleted.
 
@@ -17,7 +17,7 @@ The app checks GitHub once a day. A new version downloads in the background and 
 ## Run from source
 ### Requirements
 - Windows and Python 3.12
-- Tally with ODBC enabled (port 9400) and `tally_tdl/DB_Mini_with_LiteV4_1.tdl` loaded
+- Tally with ODBC enabled (port 9400) and `tally_tdl/LS_V4.tdl` loaded
 
 ### Run
 ```
